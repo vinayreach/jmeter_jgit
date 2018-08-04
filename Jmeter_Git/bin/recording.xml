@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="39" it="0" lt="0" ct="24" ts="1531542650966" s="true" lb="1 /generate_204" rc="204" rm="No Content" tn="" dt="" de="" by="83" sc="1" ec="0" ng="0" na="0" hn="lnla043p3014">
+  <responseHeader class="java.lang.String">HTTP/1.1 204 No Content
+Content-Length: 0
+Date: Sat, 14 Jul 2018 04:30:51 GMT
+</responseHeader>
+  <requestHeader class="java.lang.String">Connection: keep-alive
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Cache-Control: no-cache
+Pragma: no-cache
+Accept-Encoding: gzip, deflate
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36
+Host: www.gstatic.com
+</requestHeader>
+  <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
+  <responseFile class="java.lang.String"></responseFile>
+  <cookies class="java.lang.String"></cookies>
+  <method class="java.lang.String">GET</method>
+  <queryString class="java.lang.String"></queryString>
+  <java.net.URL>http://www.gstatic.com/generate_204</java.net.URL>
+</httpSample>
