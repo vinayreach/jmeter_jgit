@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testResults version="1.2">
-<sample t="57771" it="0" lt="0" ct="0" ts="1533149421201" s="false" lb="JSR223 Sampler" rc="500" rm="javax.script.ScriptException: javax.script.ScriptException: org.eclipse.jgit.api.errors.TransportException: https://github.com/anuragsamudrala/anurag.git: cannot open git-upload-pack" tn="jp@gc - Stepping Thread Group (deprecated) 1-1" dt="text" by="0" sby="0" ng="4" na="4"/>
-<sample t="49107" it="0" lt="0" ct="0" ts="1533149429893" s="false" lb="JSR223 Sampler" rc="500" rm="javax.script.ScriptException: javax.script.ScriptException: org.eclipse.jgit.api.errors.TransportException: https://github.com/anuragsamudrala/anurag.git: cannot open git-upload-pack" tn="jp@gc - Stepping Thread Group (deprecated) 1-2" dt="text" by="0" sby="0" ng="4" na="4"/>
-<sample t="31608" it="0" lt="0" ct="0" ts="1533149447390" s="false" lb="JSR223 Sampler" rc="500" rm="javax.script.ScriptException: javax.script.ScriptException: org.eclipse.jgit.api.errors.TransportException: https://github.com/anuragsamudrala/anurag.git: cannot open git-upload-pack" tn="jp@gc - Stepping Thread Group (deprecated) 1-4" dt="text" by="0" sby="0" ng="4" na="4"/>
-<sample t="40356" it="0" lt="0" ct="0" ts="1533149438641" s="false" lb="JSR223 Sampler" rc="500" rm="javax.script.ScriptException: javax.script.ScriptException: org.eclipse.jgit.api.errors.TransportException: https://github.com/anuragsamudrala/anurag.git: cannot open git-upload-pack" tn="jp@gc - Stepping Thread Group (deprecated) 1-3" dt="text" by="0" sby="0" ng="4" na="4"/>
-
-</testResults>

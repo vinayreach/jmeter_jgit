@@ -38,7 +38,7 @@
         <stringProp name="variableNames">username,password</stringProp>
       </CSVDataSet>
       <hashTree/>
-      <kg.apc.jmeter.threads.SteppingThreadGroup guiclass="kg.apc.jmeter.threads.SteppingThreadGroupGui" testclass="kg.apc.jmeter.threads.SteppingThreadGroup" testname="jp@gc - Stepping Thread Group (deprecated)" enabled="true">
+      <kg.apc.jmeter.threads.SteppingThreadGroup guiclass="kg.apc.jmeter.threads.SteppingThreadGroupGui" testclass="kg.apc.jmeter.threads.SteppingThreadGroup" testname="CLone Test" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">startnextloop</stringProp>
         <stringProp name="ThreadGroup.num_threads">20</stringProp>
         <stringProp name="Threads initial delay">0</stringProp>
@@ -55,7 +55,7 @@
         </elementProp>
       </kg.apc.jmeter.threads.SteppingThreadGroup>
       <hashTree>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Sampler" enabled="true">
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Clone" enabled="false">
           <stringProp name="cacheKey"></stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters"></stringProp>
@@ -105,8 +105,161 @@ File file=new File(&quot;${localpath}/${DirStr}_${TimeStr}&quot;);
           <hashTree/>
         </hashTree>
       </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Push" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">startnextloop</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">2</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1533577817000</longProp>
+        <longProp name="ThreadGroup.end_time">1533577817000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Add,Commit,Push" enabled="false">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey"></stringProp>
+          <stringProp name="script">import org.eclipse.jgit.api.Git;
+//import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.api.AddCommand;
+import org.eclipse.jgit.api.CommitCommand;
+import org.eclipse.jgit.api.PushCommand;
+import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.CredentialsProvider;
+
+Repository localRepo = new FileRepositoryBuilder()
+    .setGitDir(new File(&quot;${PushPath}&quot;))
+    .build();
+
+Git git = new Git(localRepo);
+AddCommand add = git.add();
+add.addFilepattern(&quot;.&quot;).call();
+
+CommitCommand commit = git.commit();
+commit.setMessage(&quot;initial commit&quot;).call();
+
+PushCommand pushCommand = git.push();
+pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(&quot;vinayreach14@gmail.com&quot;, &quot;Anitha*123&quot;));
+pushCommand.call();
+
+/*Repository localRepo = new FileRepository(localPath);
+    Git git = new Git(localRepo); 
+
+    // add remote repo:
+    RemoteAddCommand remoteAddCommand = git.remoteAdd();
+    remoteAddCommand.setName(&quot;origin&quot;);
+    remoteAddCommand.setUri(new URIish(httpUrl));
+    // you can add more settings here if needed
+    remoteAddCommand.call();
+
+    // push to remote:
+    PushCommand pushCommand = git.push();
+    pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(&quot;username&quot;, &quot;password&quot;));
+    // you can add more settings here if needed
+    pushCommand.call();
+*/</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Clone,FileCreate,Add,Commit,Push" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey"></stringProp>
+          <stringProp name="script">import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.AddCommand;
+import org.eclipse.jgit.api.CommitCommand;
+import org.eclipse.jgit.api.PushCommand;
+import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.PushResult;
+import java.io.FileWriter;
+ 
+ 
+String name = &quot;${username}&quot;;
+String password = &quot;${password}&quot;;
+String url = &quot;${repopath}&quot;;
+
+// credentials
+CredentialsProvider cp = new UsernamePasswordCredentialsProvider(name, password);
+// clone
+File dir = new File(&quot;${localpath}/${__RandomString(5,poiuytrewqlkjhgfdsamnbvcxz,DirStr)}_${__time(,TimeStr)}&quot;);
+CloneCommand cc = new CloneCommand()
+                .setCredentialsProvider(cp)
+                .setDirectory(dir)
+                .setURI(url);
+Git git = cc.call();
+// add
+
+File f=new File(&quot;${localpath}/${DirStr}_${TimeStr}/test_${DirStr}_${TimeStr}&quot;);
+File f1=new File(&quot;${localpath}/${DirStr}_${TimeStr}/test_${DirStr}_${TimeStr}/test_${DirStr}_${TimeStr}.txt&quot;);
+f.mkdirs();
+f1.createNewFile();
+FileWriter writer = new FileWriter(f1);
+writer.write(&quot;test_${DirStr}_${TimeStr}_${username}&quot;);
+writer.close();
+
+
+AddCommand ac = git.add();
+ac.addFilepattern(&quot;.&quot;);
+ac.call();
+
+// commit
+CommitCommand commit = git.commit();
+commit.setCommitter(&quot;${username}&quot;, &quot;${username}@test.com&quot;)
+                .setMessage(&quot;added test_${DirStr}_${TimeStr}.txt&quot;);
+            commit.call();
+
+        // push
+        PushCommand pc = git.push();
+        pc.setCredentialsProvider(cp)
+                .setForce(true)
+                .setPushAll();
+     
+            Iterator&lt;PushResult&gt; it = pc.call().iterator();
+            if(it.hasNext()){
+                System.out.println(it.next().toString());
+            }
+     
+        // cleanup
+        dir.deleteOnExit();</stringProp>
+        </JSR223Sampler>
+        <hashTree>
+          <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+            <boolProp name="resetInterpreter">false</boolProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="script">import java.io.File;
+import org.apache.commons.io.FileUtils;
+
+File file=new File(&quot;${localpath}/${DirStr}_${TimeStr}&quot;);
+
+      if (file.isDirectory()) {
+        FileUtils.deleteDirectory(file);
+      } else {
+        file.delete();
+      }</stringProp>
+          </BeanShellPostProcessor>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-        <boolProp name="ResultCollector.error_logging">true</boolProp>
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
           <value class="SampleSaveConfiguration">
@@ -214,6 +367,49 @@ File file=new File(&quot;${localpath}/${DirStr}_${TimeStr}&quot;);
         </objProp>
         <stringProp name="filename">Results.csv</stringProp>
       </ResultCollector>
+      <hashTree/>
+      <BackendListener guiclass="BackendListenerGui" testclass="BackendListener" testname="Backend Listener" enabled="true">
+        <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="graphiteMetricsSender" elementType="Argument">
+              <stringProp name="Argument.name">graphiteMetricsSender</stringProp>
+              <stringProp name="Argument.value">org.apache.jmeter.visualizers.backend.graphite.TextGraphiteMetricsSender</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="graphiteHost" elementType="Argument">
+              <stringProp name="Argument.name">graphiteHost</stringProp>
+              <stringProp name="Argument.value">localhost</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="graphitePort" elementType="Argument">
+              <stringProp name="Argument.name">graphitePort</stringProp>
+              <stringProp name="Argument.value">2003</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="rootMetricsPrefix" elementType="Argument">
+              <stringProp name="Argument.name">rootMetricsPrefix</stringProp>
+              <stringProp name="Argument.value">jmeter.</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="summaryOnly" elementType="Argument">
+              <stringProp name="Argument.name">summaryOnly</stringProp>
+              <stringProp name="Argument.value">true</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="samplersList" elementType="Argument">
+              <stringProp name="Argument.name">samplersList</stringProp>
+              <stringProp name="Argument.value">.*</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="percentiles" elementType="Argument">
+              <stringProp name="Argument.name">percentiles</stringProp>
+              <stringProp name="Argument.value">90;95;99</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </elementProp>
+        <stringProp name="classname">org.apache.jmeter.visualizers.backend.graphite.GraphiteBackendListenerClient</stringProp>
+      </BackendListener>
       <hashTree/>
     </hashTree>
     <WorkBench guiclass="WorkBenchGui" testclass="WorkBench" testname="WorkBench" enabled="true">
