@@ -1,1 +1,15 @@
+Variable
+api-test-devops
 
+command-1
+
+curl -X POST -v -u user:key https://stash.com/rest/api/1.0/projects/PL123456/repos -H "Content-Type: application/json" -d "{\"name\": \"{api-test-devops}\",\"scmId\": \"git\" }"
+
+command-2
+curl -u user:key -X PUT "https://stash.com/rest/api/1.0/projects/PL123456/repos/{api-test-devops}/permissions/groups?permission=REPO_WRITE&name=test-group0&permission=REPO_WRITE&name=test-group1"
+
+command-3
+curl -u user:key -X PUT "https://stash.com/rest/api/1.0/projects/PL123456/repos/{api-test-devops}/permissions/groups?permission=REPO_ADMIN&name=test-group2&permission"
+
+command-4
+curl -u user:key -X PUT "https://stash.com/rest/api/1.0/projects/PL123456/repos/{api-test-devops}/permissions/groups?permission=REPO_READ&name=test-group3&permission"
