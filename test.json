@@ -42,20 +42,30 @@
     "HostedZoneName": {
       "Description": "DNS Hosted Zone Name",
       "Type": "String"
-    },
-    "LaunchTemplateName": {
-      "Description": "Name of the Launch Template to use",
-      "Type": "AWS::EC2::LaunchTemplate::Id"
     }
   },
   "Resources": {
+    "MyLaunchTemplate": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateName": "MyLaunchTemplate",
+        "VersionDescription": "Initial version",
+        "LaunchTemplateData": {
+          "InstanceType": {
+            "Ref": "InstanceType"
+          },
+          // Add more properties as needed
+        }
+      }
+    },
     "MyAutoScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
         "LaunchTemplate": {
           "LaunchTemplateName": {
-            "Ref": "LaunchTemplateName"
-          }
+            "Ref": "MyLaunchTemplate"
+          },
+          "Version": "1"
         },
         "MinSize": {
           "Ref": "MinSize"
