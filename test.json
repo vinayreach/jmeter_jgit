@@ -1,182 +1,171 @@
+JSONLint
+Validator and Formatter
+Chrome Logo
+
+To format and validate your JSON, just copy + paste it below:
+1
 {
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Parameters": {
-    "InstanceType": {
-      "Description": "EC2 instance type for the Auto Scaling Group",
-      "Type": "String",
-      "Default": "t2.micro"
-    },
-    "MinSize": {
-      "Description": "Minimum number of instances in the Auto Scaling Group",
-      "Type": "Number",
-      "Default": "2"
-    },
-    "MaxSize": {
-      "Description": "Maximum number of instances in the Auto Scaling Group",
-      "Type": "Number",
-      "Default": "4"
-    },
-    "DesiredCapacity": {
-      "Description": "Desired number of instances in the Auto Scaling Group",
-      "Type": "Number",
-      "Default": "2"
-    },
-    "HealthCheckPath": {
-      "Description": "Health check path for the ALB target group",
-      "Type": "String",
-      "Default": "/health"
-    },
-    "VpcId": {
-      "Description": "VPC where resources will be created",
-      "Type": "AWS::EC2::VPC::Id"
-    },
-    "SubnetIds": {
-      "Description": "Subnets for the ASG instances",
-      "Type": "List<AWS::EC2::Subnet::Id>"
-    },
-    "LoadBalancerName": {
-      "Description": "Name for the Application Load Balancer",
-      "Type": "String",
-      "Default": "MyALB"
-    },
-    "HostedZoneName": {
-      "Description": "DNS Hosted Zone Name",
-      "Type": "String"
-    }
-  },
-  "Resources": {
-    "MyLaunchTemplate": {
-      "Type": "AWS::EC2::LaunchTemplate",
-      "Properties": {
-        "LaunchTemplateName": "MyLaunchTemplate",
-        "VersionDescription": "Initial version",
-        "LaunchTemplateData": {
-          "InstanceType": {
-            "Ref": "InstanceType"
-          },
-          // Add more properties as needed
-        }
-      }
-    },
-    "MyAutoScalingGroup": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "Properties": {
-        "LaunchTemplate": {
-          "LaunchTemplateName": {
-            "Ref": "MyLaunchTemplate"
-          },
-          "Version": "1"
+2
+    "AWSTemplateFormatVersion": "2010-09-09",
+3
+    "Parameters": {
+4
+        "InstanceType": {
+5
+            "Description": "EC2 instance type for the Auto Scaling Group",
+6
+            "Type": "String",
+7
+            "Default": "t2.micro"
+8
         },
+9
         "MinSize": {
-          "Ref": "MinSize"
+10
+            "Description": "Minimum number of instances in the Auto Scaling Group",
+11
+            "Type": "Number",
+12
+            "Default": "2"
+13
         },
+14
         "MaxSize": {
-          "Ref": "MaxSize"
+15
+            "Description": "Maximum number of instances in the Auto Scaling Group",
+16
+            "Type": "Number",
+17
+            "Default": "4"
+18
         },
+19
         "DesiredCapacity": {
-          "Ref": "DesiredCapacity"
+20
+            "Description": "Desired number of instances in the Auto Scaling Group",
+21
+            "Type": "Number",
+22
+            "Default": "2"
+23
         },
-        "VPCZoneIdentifier": {
-          "Fn::Join": [
-            ",",
-            {
-              "Ref": "SubnetIds"
-            }
-          ]
-        },
-        "LoadBalancerNames": [
-          {
-            "Ref": "MyALB"
-          }
-        ]
-      }
-    },
-    "MyTargetGroup": {
-      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
-      "Properties": {
+24
         "HealthCheckPath": {
-          "Ref": "HealthCheckPath"
+25
+            "Description": "Health check path for the ALB target group",
+26
+            "Type": "String",
+27
+            "Default": "/health"
+28
         },
-        "HealthCheckPort": 8080,
+29
         "VpcId": {
-          "Ref": "VpcId"
-        }
-      }
-    },
-    "MyALB": {
-      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
-      "Properties": {
-        "Name": {
-          "Ref": "LoadBalancerName"
+30
+            "Description": "VPC where resources will be created",
+31
+            "Type": "AWS::EC2::VPC::Id"
+32
         },
-        "Subnets": {
-          "Fn::Split": [",", {"Ref": "SubnetIds"}]
+33
+        "SubnetIds": {
+34
+            "Description": "Subnets for the ASG instances",
+35
+            "Type": "List<AWS::EC2::Subnet::Id>"
+36
         },
-        "SecurityGroups": [] // Add security groups if needed
-      }
-    },
-    "ALBListener": {
-      "Type": "AWS::ElasticLoadBalancingV2::Listener",
-      "Properties": {
-        "DefaultActions": [
-          {
-            "Type": "fixed-response",
-            "FixedResponseConfig": {
-              "ContentType": "text/plain",
-              "StatusCode": "200",
-              "Content": "OK"
-            }
-          }
-        ],
-        "LoadBalancerArn": {
-          "Ref": "MyALB"
-        },
-        "Port": 80,
-        "Protocol": "HTTP"
-      }
-    },
-    "ALBListenerRule": {
-      "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
-      "Properties": {
-        "Actions": [
-          {
-            "Type": "forward",
-            "TargetGroupArn": {
-              "Ref": "MyTargetGroup"
-            }
-          }
-        ],
-        "Conditions": [
-          {
-            "Field": "path-pattern",
-            "PathPatternConfig": {
-              "Values": ["/"]
-            }
-          }
-        ],
-        "ListenerArn": {
-          "Ref": "ALBListener"
-        },
-        "Priority": 1
-      }
-    },
-    "ALBDNSRecord": {
-      "Type": "AWS::Route53::RecordSet",
-      "Properties": {
-        "HostedZoneName": {
-          "Ref": "HostedZoneName"
-        },
-        "Name": {
-          "Fn::Sub": "${LoadBalancerName}.${HostedZoneName}"
-        },
-        "Type": "A",
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::GetAtt": ["MyALB", "DNSName"]
-          },
-          "HostedZoneId": "Z2FDTNDATAQYW2" // AWS ALB DNS Zone ID
-        }
-      }
-    }
-  }
-}
+37
+        "LoadBalancerName": {
+
+Validate JSONClearCompress
+JSON is valid!
+About the JSONLint Editor
+JSONLint is a validator and reformatter for JSON, a lightweight data-interchange format. Copy and paste, directly type, or input a URL in the editor above and let JSONLint tidy and validate your messy JSON code.
+
+What Is JSON?
+JSON (pronounced as Jason), stands for "JavaScript Object Notation," is a human-readable and compact solution to represent a complex data structure and facilitate data interchange between systems. It's a widespread data format with a diverse range of applications enabled by its simplicity and semblance to readable text. As such, it's used by most but not all systems for communicating data.
+
+Why Use JSON?
+There are several reasons why you should consider using JSON, the key reason being that JSON is independent of your system's programming language, despite being derived from JavaScript. Not only is JSON language-independent, but it also represents data that speaks common elements of many programming languages, effectively making it into a universal data representation understood by all systems.
+
+Other reasons include:
+
+Readability – JSON is human-readable, given proper formatting.
+Compactness – JSON data format doesn't use a complete markup structure, unlike XML.
+It's easy to analyze into logical syntactic components, especially in JavaScript.
+Countless JSON libraries are available for most programming languages.
+Proper JSON Format
+Using JSON doesn't require any JavaScript knowledge, though having such would only improve your understanding of JSON. And though the knowledge of JavaScript isn't necessary, following specific rules is:
+
+Data is in name/value pairs
+Data is separated by commas
+Objects are encapsulated within the opening and closing curly brackets
+An empty object can be represented by {}
+Arrays are encapsulated within opening and closing square brackets
+An empty array can be represented by []
+A member is represented by a key-value pair, contained in double quotes
+Each member should have a unique key within an object structure
+The value of a member must be contained in double quotes, if it's a string
+Boolean values are represented using the true or false literals in lower case
+Number values are represented using double-precision floating-point format and shouldn't have leading zeroes
+"Offensive" characters in a string need to be escaped using the backslash character \
+Null values are represented by the null literal in lower case
+Dates, and similar object types, aren't adequately supported and should be converted to strings
+Each member of an object or array value must be followed by a comma, except for the last one
+The standard extension for the JSON file is '.json'
+The mime type for JSON files is 'application/json'
+You can achieve proper JSON formatting by following these simple rules. However, if you're unsure about your code, we suggest using this JSONLint Validator and formatter.
+
+Why Use JSONLint Validator and Formatter?
+Programming can be challenging, as it requires enormous attention and excellent knowledge of the programming language, even as simple as JSON. Still, writing codeis tricky, and finding an error in JSON code can be a challenging and time-consuming task.
+
+The best way to find and correct errors while simultaneously saving time is to use an online tool such as JSONLint. JSONLint will check the validity of your JSON code, detect and point out line numbers of the code containing errors. It's an excellent way to correct errors without wasting hours finding a missing coma somewhere inside your code.
+
+How Does A JSONLint Validator Work?
+JSONLint is an online editor, validator, and formatting tool for JSON, which allows you to directly type your code, copy and paste it, or input a URL containing your code. It will validate your JSON content according to JS standards, informing you of every human-made error, which happens for a multitude of reasons – one of them being the lack of focus.
+
+Using JSONLint, you can quickly find any errors that might've occurred, allowing you to focus more on the rest of your code than on a tiny error itself.
+
+Tips & Tricks
+You can use a URL and JSONLint will scrape it for JSON and parse it. Just structure the link like this, for example: https://jsonlint.com/?url=https://jsonlint.com/datasets/programming-languages.json
+You can provide JSON to lint in the URL if you link to JSONLint with the 'json' parameter. For example: https://jsonlint.com/?json=%7B%22hello%22:%20%22world%22%7D.
+JSONLint can also be used as a JSON compressor/minifier. Just click on the "Compress" button above.
+Common Errors
+Expecting 'STRING' - You probably have an extra comma at the end of your collection. Something like { "a": "b", }
+Expecting 'STRING', 'NUMBER', 'NULL', 'TRUE', 'FALSE', '{', '[' - You probably have an extra comma at the end of your list. Something like: ["a", "b", ]
+Enclosing your collection keys in quotes. Proper format for a collection is { "key": "value" }
+Make sure you follow JSON's syntax properly. For example, always use double quotes, always quotify your keys, and remove all callback functions.
+Different Results
+If you use a Windows computer you may end up with different results. This is possibly due to the way Windows handles newlines. Essentially, if you have just newline characters (\n) in your JSON and paste it into JSONLint from a Windows computer, it may validate it as valid erroneously since Windows may need a carriage return (\r) as well to detect newlines properly. As a solution, either use direct URL input, or make sure your content's newlines match the architecture your system expects!
+
+Credits
+Maintained by CircleCell. Thanks to Douglas Crockford of JSON and JS Lint, and Zach Carter, who built a pure JavaScript implementation. You can download the JSONLint source code on GitHub.
+
+Other tools from JSONLint
+XML to JSON
+JSON Stringify
+JSON Datasets
+We have created a series of helpful JSON files that you can use for your projects and for testing. If you would like to contribute to the archive or have ideas please open up a ticket or pull request on our GitHub repo.
+
+US States, Abbreviation, Capital City, Date Founded, and Bordering States
+Programming Languages
+Emoticons
+Our Friends and Favorites
+Markdown Editor
+A lightweight and basic Markdown Editor
+JSCompress
+A JavaScript Compression Tool
+RandomKeygen
+The Random Password Generator
+JSONCompare
+The Advanced JSON Linter
+DNS-Lookup
+Professional DNS & IP Lookup Tool
+ValidateJavaScript
+Quickly Find & Fix JavaScript Errors
+Colors.to
+Generate color palette codes
+What is my IP address?
+IP Lookup and diagnostic tool
+© 2023 JSONLint.com. Privacy Policy
