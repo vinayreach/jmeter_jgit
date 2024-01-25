@@ -42,14 +42,20 @@
     "HostedZoneName": {
       "Description": "DNS Hosted Zone Name",
       "Type": "String"
+    },
+    "LaunchTemplateName": {
+      "Description": "Name of the Launch Template to use",
+      "Type": "AWS::EC2::LaunchTemplate::Id"
     }
   },
   "Resources": {
     "MyAutoScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
-        "LaunchConfigurationName": {
-          "Ref": "MyLaunchConfig"
+        "LaunchTemplate": {
+          "LaunchTemplateName": {
+            "Ref": "LaunchTemplateName"
+          }
         },
         "MinSize": {
           "Ref": "MinSize"
@@ -73,15 +79,6 @@
             "Ref": "MyALB"
           }
         ]
-      }
-    },
-    "MyLaunchConfig": {
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-      "Properties": {
-        "InstanceType": {
-          "Ref": "InstanceType"
-        }
-        // Add more properties as needed
       }
     },
     "MyTargetGroup": {
