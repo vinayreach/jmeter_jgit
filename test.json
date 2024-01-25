@@ -1,0 +1,175 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "InstanceType": {
+      "Description": "EC2 instance type for the Auto Scaling Group",
+      "Type": "String",
+      "Default": "t2.micro"
+    },
+    "MinSize": {
+      "Description": "Minimum number of instances in the Auto Scaling Group",
+      "Type": "Number",
+      "Default": "2"
+    },
+    "MaxSize": {
+      "Description": "Maximum number of instances in the Auto Scaling Group",
+      "Type": "Number",
+      "Default": "4"
+    },
+    "DesiredCapacity": {
+      "Description": "Desired number of instances in the Auto Scaling Group",
+      "Type": "Number",
+      "Default": "2"
+    },
+    "HealthCheckPath": {
+      "Description": "Health check path for the ALB target group",
+      "Type": "String",
+      "Default": "/health"
+    },
+    "VpcId": {
+      "Description": "VPC where resources will be created",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "SubnetIds": {
+      "Description": "Subnets for the ASG instances",
+      "Type": "List<AWS::EC2::Subnet::Id>"
+    },
+    "LoadBalancerName": {
+      "Description": "Name for the Application Load Balancer",
+      "Type": "String",
+      "Default": "MyALB"
+    },
+    "HostedZoneName": {
+      "Description": "DNS Hosted Zone Name",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "MyAutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "LaunchConfigurationName": {
+          "Ref": "MyLaunchConfig"
+        },
+        "MinSize": {
+          "Ref": "MinSize"
+        },
+        "MaxSize": {
+          "Ref": "MaxSize"
+        },
+        "DesiredCapacity": {
+          "Ref": "DesiredCapacity"
+        },
+        "VPCZoneIdentifier": {
+          "Fn::Join": [
+            ",",
+            {
+              "Ref": "SubnetIds"
+            }
+          ]
+        },
+        "LoadBalancerNames": [
+          {
+            "Ref": "MyALB"
+          }
+        ]
+      }
+    },
+    "MyLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "InstanceType": {
+          "Ref": "InstanceType"
+        }
+        // Add more properties as needed
+      }
+    },
+    "MyTargetGroup": {
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "Properties": {
+        "HealthCheckPath": {
+          "Ref": "HealthCheckPath"
+        },
+        "HealthCheckPort": 8080,
+        "VpcId": {
+          "Ref": "VpcId"
+        }
+      }
+    },
+    "MyALB": {
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties": {
+        "Name": {
+          "Ref": "LoadBalancerName"
+        },
+        "Subnets": {
+          "Fn::Split": [",", {"Ref": "SubnetIds"}]
+        },
+        "SecurityGroups": [] // Add security groups if needed
+      }
+    },
+    "ALBListener": {
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+      "Properties": {
+        "DefaultActions": [
+          {
+            "Type": "fixed-response",
+            "FixedResponseConfig": {
+              "ContentType": "text/plain",
+              "StatusCode": "200",
+              "Content": "OK"
+            }
+          }
+        ],
+        "LoadBalancerArn": {
+          "Ref": "MyALB"
+        },
+        "Port": 80,
+        "Protocol": "HTTP"
+      }
+    },
+    "ALBListenerRule": {
+      "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+      "Properties": {
+        "Actions": [
+          {
+            "Type": "forward",
+            "TargetGroupArn": {
+              "Ref": "MyTargetGroup"
+            }
+          }
+        ],
+        "Conditions": [
+          {
+            "Field": "path-pattern",
+            "PathPatternConfig": {
+              "Values": ["/"]
+            }
+          }
+        ],
+        "ListenerArn": {
+          "Ref": "ALBListener"
+        },
+        "Priority": 1
+      }
+    },
+    "ALBDNSRecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "Properties": {
+        "HostedZoneName": {
+          "Ref": "HostedZoneName"
+        },
+        "Name": {
+          "Fn::Sub": "${LoadBalancerName}.${HostedZoneName}"
+        },
+        "Type": "A",
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": ["MyALB", "DNSName"]
+          },
+          "HostedZoneId": "Z2FDTNDATAQYW2" // AWS ALB DNS Zone ID
+        }
+      }
+    }
+  }
+}
